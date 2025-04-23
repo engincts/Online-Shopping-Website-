@@ -1,0 +1,49 @@
+﻿@model List<E_ticaret_Sitesi.Models.Order>
+
+<h2>Tüm Siparişler</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Sipariş ID</th>
+            <th>Kullanıcı</th>
+            <th>Tarih</th>
+            <th>Toplam</th>
+            <th>Durum</th>
+            <th>Ürünler</th>
+            <th>İşlem</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var order in Model)
+        {
+            <tr>
+                <td>@order.OrderId</td>
+                <td>@order.User?.FullName</td>
+                <td>@order.OrderDate?.ToString("dd.MM.yyyy HH:mm")</td>
+                <td>@order.TotalAmount ₺</td>
+                <td>@order.Status</td>
+                <td>
+                    <ul>
+                        @foreach (var item in order.OrderDetails)
+                        {
+                            <li>@item.Product?.Name (x@item.Quantity)</li>
+                        }
+                    </ul>
+                </td>
+                <td>
+                    <form asp-action="UpdateStatus" method="post" class="d-flex gap-2">
+                        <input type="hidden" name="orderId" value="@order.OrderId" />
+                        <select name="status" class="form-select form-select-sm">
+                            <option value="Hazırlanıyor" selected="@((order.Status == "Hazırlanıyor") ? "selected" : "")">Hazırlanıyor</option>
+                            <option value="Kargoda" selected="@((order.Status == "Kargoda") ? "selected" : "")">Kargoda</option>
+                            <option value="Teslim Edildi" selected="@((order.Status == "Teslim Edildi") ? "selected" : "")">Teslim Edildi</option>
+                            <option value="İptal Edildi" selected="@((order.Status == "İptal Edildi") ? "selected" : "")">İptal Edildi</option>
+                        </select>
+                        <button type="submit" class="btn btn-sm btn-primary">Güncelle</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

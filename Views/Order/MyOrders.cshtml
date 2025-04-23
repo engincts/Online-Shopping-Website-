@@ -1,0 +1,42 @@
+﻿@model List<E_ticaret_Sitesi.Models.Order>
+
+<h2>Siparişlerim</h2>
+
+@if (TempData["OrderSuccess"] != null)
+{
+    <div class="alert alert-success">@TempData["OrderSuccess"]</div>
+}
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">Henüz siparişiniz yok.</div>
+}
+else
+{
+    foreach (var order in Model)
+    {
+        <div class="card mb-4">
+            <div class="card-header">
+                Sipariş Tarihi: @order.OrderDate?.ToString("dd.MM.yyyy HH:mm") <br />
+                Durum: <strong>@order.Status</strong><br />
+                Toplam Tutar: <strong>@order.TotalAmount ₺</strong>
+            </div>
+            <ul class="list-group list-group-flush">
+                @foreach (var item in order.OrderDetails)
+                {
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>@item.Product?.Name (x@item.Quantity)</span>
+                        <span>@(item.Quantity * item.UnitPrice) ₺</span>
+                    </li>
+                }
+            </ul>
+
+            <div class="card-footer text-end">
+                <a asp-controller="Order" asp-action="DownloadInvoice" asp-route-id="@order.OrderId"
+                   class="btn btn-sm btn-outline-primary" target="_blank">
+                    Faturayı İndir (PDF)
+                </a>
+            </div>
+        </div>
+    }
+}

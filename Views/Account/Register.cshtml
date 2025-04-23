@@ -1,0 +1,30 @@
+﻿@model E_ticaret_Sitesi.Models.User
+@{
+    ViewData["Title"] = "Kayıt Ol";
+}
+
+<div class="d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="card shadow p-4" style="width: 100%; max-width: 450px;">
+        <h2 class="text-center mb-4">Kayıt Ol</h2>
+
+        <form asp-action="Register" method="post">
+            <div class="mb-3">
+                <input asp-for="FullName" placeholder="Ad Soyad" class="form-control" required />
+            </div>
+            <div class="mb-3">
+                <input asp-for="Email" placeholder="E-posta" class="form-control" type="email" required />
+            </div>
+            <div class="mb-3">
+                <input asp-for="PasswordHash" placeholder="Şifre" type="password" class="form-control" required />
+            </div>
+            <div class="mb-3">
+                <input asp-for="Phone" placeholder="Telefon" class="form-control" />
+            </div>
+            <button type="submit" class="btn btn-success w-100">Kayıt Ol</button>
+        </form>
+
+        <div class="text-center mt-3">
+            <a asp-controller="Account" asp-action="Login">Zaten hesabın var mı? Giriş yap</a>
+        </div>
+    </div>
+</div>

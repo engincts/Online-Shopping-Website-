@@ -1,0 +1,42 @@
+﻿@model E_ticaret_Sitesi.Models.Cart
+
+<h2>Sepetim</h2>
+
+@if (!Model.CartItems.Any())
+{
+    <div class="alert alert-info">Sepetinizde ürün yok.</div>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Ürün</th>
+                <th>Fiyat</th>
+                <th>Adet</th>
+                <th>Toplam</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.CartItems)
+            {
+                <tr>
+                    <td>@item.Product.Name</td>
+                    <td>@item.Product.Price ₺</td>
+                    <td>@item.Quantity</td>
+                    <td>@(item.Quantity * item.Product.Price) ₺</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <h4 class="text-end">
+        Toplam: <strong>
+            @Model.CartItems.Sum(ci => ci.Product.Price * ci.Quantity) ₺
+        </strong>
+    </h4>
+
+    <form asp-controller="Order" asp-action="Checkout" method="post">
+        <button type="submit" class="btn btn-success float-end">Siparişi Tamamla</button>
+    </form>
+}

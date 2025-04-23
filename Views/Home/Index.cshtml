@@ -1,0 +1,82 @@
+﻿@model List<E_ticaret_Sitesi.Models.Product>
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<!-- Hero Section (Ana Banner) -->
+<div class="hero-section bg-dark text-white text-center py-5">
+    <h1 class="display-4">Hoşgeldiniz! Şimdi Al, Hemen Kullan!</h1>
+    <p class="lead">En yeni ürünlerimizi keşfedin, fırsatları kaçırmayın.</p>
+    <a href="/Products" class="btn btn-primary btn-lg">Ürünleri Gör</a>
+</div>
+
+<!-- Kategoriler Bölümü -->
+<div class="categories-section text-center my-5">
+    <h2>Ürün Kategorileri</h2>
+    <div class="row">
+        @foreach (var category in ViewBag.Categories)
+        {
+            <div class="col-md-3 mb-3">
+                <a href="/Products?categoryId=@category.CategoryId" class="btn btn-outline-primary w-100">@category.Name</a>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Öne Çıkan Ürünler -->
+<div class="featured-products text-center my-5">
+    <h2>Öne Çıkan Ürünler</h2>
+    <div class="row">
+        @foreach (var product in Model)
+        {
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card shadow-lg">
+                    <!-- Resmin doğru şekilde yüklenmesi için src kullanımı -->
+                    <img src="@Url.Content(product.ImageUrl)" class="card-img-top" alt="@product.Name" style="height: 250px; object-fit: cover;">
+                    <p class="text-muted small">Yol: @product.ImageUrl</p>
+
+                    <div class="card-body">
+                        <h5 class="card-title">@product.Name</h5>
+                        <p class="card-text">@product.Price ₺</p>
+                        <a href="/Products/Details/@product.ProductId" class="btn btn-outline-primary">Detay</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Tüm Ürünler Butonu -->
+<div class="text-center my-5">
+    <a href="/Products" class="btn btn-outline-primary">Tüm Ürünleri Gör</a>
+</div>
+
+<!-- İkonlar ile Bilgi Bölümü -->
+<div class="info-icons text-center my-5">
+    <h3>Hızlı ve Kolay Alışveriş</h3>
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <i class="fas fa-shipping-fast fa-4x"></i>
+            <p>Ücretsiz Kargo</p>
+        </div>
+        <div class="col-md-4 mb-3">
+            <i class="fas fa-credit-card fa-4x"></i>
+            <p>Güvenli Ödeme</p>
+        </div>
+        <div class="col-md-4 mb-3">
+            <i class="fas fa-retweet fa-4x"></i>
+            <p>Kolay İade</p>
+        </div>
+    </div>
+</div>
+
+<!-- Footer (Altbilgi) -->
+<footer class="footer bg-dark text-white text-center py-3">
+    <div class="container">
+        &copy; 2025 - E_ticaret_Sitesi - <a href="/Home/Privacy" class="text-white">Gizlilik</a>
+    </div>
+</footer>
+
+@section Scripts {
+    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+}

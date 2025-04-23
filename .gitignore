@@ -1,0 +1,25 @@
+# Build ve derleme dosyaları
+bin/
+obj/
+
+# Visual Studio geçici dosyaları
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# IDE ayar klasörleri
+.vscode/
+
+# log dosyaları
+*.log
+
+# NuGet paket klasörü
+packages/
+
+# Yayınlanmış paketler
+*.nupkg
+
+# Config ve environment
+.env

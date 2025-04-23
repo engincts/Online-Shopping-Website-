@@ -1,0 +1,19 @@
+﻿@model E_ticaret_Sitesi.Models.Product
+
+@{
+    ViewData["Title"] = "Ürün Detayı";
+}
+
+<div class="card mb-4">
+    <img src="@Model.ImageUrl" class="card-img-top" alt="@Model.Name" />
+    <div class="card-body">
+        <h2 class="card-title">@Model.Name</h2>
+        <p class="card-text">@Model.Description</p>
+        <p class="card-text fw-bold">@Model.Price ₺</p>
+
+        <form method="post" asp-controller="Cart" asp-action="AddToCart">
+            <input type="hidden" name="productId" value="@Model.ProductId" />
+            <button type="submit" class="btn btn-primary">Sepete Ekle</button>
+        </form>
+    </div>
+</div>
