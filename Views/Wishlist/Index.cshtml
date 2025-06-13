@@ -1,0 +1,30 @@
+﻿@model List<E_ticaret_Sitesi.Models.Wishlist>
+
+<h2>Favorilerim</h2>
+
+@if (!Model.Any())
+{
+    <p>Favori ürününüz bulunmamaktadır.</p>
+}
+else
+{
+    <div class="row">
+        @foreach (var item in Model)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <img src="@item.Product.ImageUrl" class="card-img-top" />
+                    <div class="card-body">
+                        <h5>@item.Product.Name</h5>
+                        <p>@item.Product.Price ₺</p>
+
+                        <form asp-action="Remove" method="post">
+                            <input type="hidden" name="productId" value="@item.ProductId" />
+                            <button class="btn btn-outline-secondary">Kaldır</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

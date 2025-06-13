@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 
 namespace E_ticaret_Sitesi.Controllers
 {
@@ -19,12 +20,11 @@ namespace E_ticaret_Sitesi.Controllers
 
         public IActionResult Index(int? categoryId)
         {
-            // Kategorileri ViewBag ile gönder
             ViewBag.Categories = _context.Categories.ToList();
 
-            // Ürünleri sorgula ve sadece gerekli alanlarý çek
             var productsQuery = _context.Products
                 .Where(p => !categoryId.HasValue || p.CategoryId == categoryId)
+                .OrderByDescending(p => p.ProductId)
                 .Select(p => new Product
                 {
                     ProductId = p.ProductId,

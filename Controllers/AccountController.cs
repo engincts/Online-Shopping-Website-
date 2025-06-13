@@ -2,8 +2,11 @@
 using E_ticaret_Sitesi.Models;
 using System.Text;
 using System.Security.Cryptography;
-using Microsoft.AspNetCore.Http;
-using System.Linq;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
+
 
 public class AccountController : Controller
 {
@@ -22,21 +25,17 @@ public class AccountController : Controller
             byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(rawData));
             StringBuilder builder = new StringBuilder();
             foreach (var b in bytes)
-            {
                 builder.Append(b.ToString("x2"));
-            }
             return builder.ToString();
         }
     }
 
     // GET: /Account/Register
-    public IActionResult Register()
-    {
-        return View();
-    }
+    public IActionResult Register() => View();
 
     // POST: /Account/Register
     [HttpPost]
+    [AllowAnonymous]
     public IActionResult Register(User user)
     {
         if (_context.Users.Any(u => u.Email == user.Email))
@@ -45,7 +44,8 @@ public class AccountController : Controller
             return View();
         }
 
-        user.PasswordHash = ComputeSha256Hash(user.PasswordHash); // 👈 senin hash fonksiyonun
+        user.PasswordHash = ComputeSha256Hash(user.PasswordHash);
+        user.Role = "User";
         user.CreatedAt = DateTime.Now;
 
         _context.Users.Add(user);
@@ -55,23 +55,32 @@ public class AccountController : Controller
     }
 
     // GET: /Account/Login
-    public IActionResult Login()
-    {
-        return View();
-    }
+    public IActionResult Login() => View();
 
     // POST: /Account/Login
     [HttpPost]
-    public IActionResult Login(string email, string password)
+    public async Task<IActionResult> Login(string email, string password)
     {
         var user = _context.Users.FirstOrDefault(u => u.Email == email);
-
-        string hashedPassword = ComputeSha256Hash(password); // 👈 kullanıcıdan gelen şifre hashleniyor
+        var hashedPassword = ComputeSha256Hash(password);
 
         if (user != null && user.PasswordHash == hashedPassword)
         {
-            HttpContext.Session.SetInt32("UserId", user.UserId);
-            HttpContext.Session.SetString("UserName", user.FullName);
+            //  Cookie için claim listesi
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
+                new Claim(ClaimTypes.Name, user.FullName),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Role, user.Role ?? "User") 
+            };
+
+            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var principal = new ClaimsPrincipal(identity);
+
+            // Cookie oluştur
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+
             return RedirectToAction("Index", "Home");
         }
 
@@ -79,9 +88,17 @@ public class AccountController : Controller
         return View();
     }
 
-    public IActionResult Logout()
+    // /Account/Logout
+    public async Task<IActionResult> Logout()
     {
-        HttpContext.Session.Clear();
+        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         return RedirectToAction("Login");
     }
+
+    [AllowAnonymous]
+    public IActionResult AccessDenied()
+    {
+        return View();
+    }
+
 }

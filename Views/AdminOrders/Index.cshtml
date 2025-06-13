@@ -34,11 +34,15 @@
                 <td>
                     <form asp-action="UpdateStatus" method="post" class="d-flex gap-2">
                         <input type="hidden" name="orderId" value="@order.OrderId" />
-                        <select name="status" class="form-select form-select-sm">
-                            <option value="Hazırlanıyor" selected="@((order.Status == "Hazırlanıyor") ? "selected" : "")">Hazırlanıyor</option>
-                            <option value="Kargoda" selected="@((order.Status == "Kargoda") ? "selected" : "")">Kargoda</option>
-                            <option value="Teslim Edildi" selected="@((order.Status == "Teslim Edildi") ? "selected" : "")">Teslim Edildi</option>
-                            <option value="İptal Edildi" selected="@((order.Status == "İptal Edildi") ? "selected" : "")">İptal Edildi</option>
+                        <select class="form-select form-select-sm" name="status">
+                            @{
+                                var statusList = new List<string> { "Hazırlanıyor", "Kargoda", "Teslim Edildi", "İptal Edildi" };
+                            }
+                            @foreach (var status in statusList)
+                            {
+                                var isSelected = status == order.Status ? "selected" : "";
+                                @:<option value="@status" @isSelected>@status</option>
+                            }
                         </select>
                         <button type="submit" class="btn btn-sm btn-primary">Güncelle</button>
                     </form>

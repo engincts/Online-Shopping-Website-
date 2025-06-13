@@ -1,0 +1,27 @@
+﻿@model List<E_ticaret_Sitesi.Models.Address>
+
+<h2>Adreslerim</h2>
+
+<a asp-action="Create" class="btn btn-success mb-3">Yeni Adres Ekle</a>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Başlık</th>
+            <th>Ad Soyad</th>
+            <th>Telefon</th>
+            <th>Adres</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var address in Model)
+        {
+            <tr>
+                <td>@address.Title</td>
+                <td>@address.FullName</td>
+                <td>@address.Phone</td>
+                <td>@address.City, @address.District - @address.FullAddress</td>
+            </tr>
+        }
+    </tbody>
+</table>

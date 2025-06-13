@@ -6,7 +6,12 @@ using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 using E_ticaret_Sitesi.Models;
 using System.Reflection.Metadata;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
+using E_ticaret_Sitesi.ViewModels;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
+[Authorize]
 public class OrderController : Controller
 {
     private readonly OnlineShoppingContext _context;
@@ -20,7 +25,6 @@ public class OrderController : Controller
     {
         public static byte[] GenerateInvoicePdf(Order order)
         {
-            // Lisans tipini belirtmek için bu satırı ekleyin
             QuestPDF.Settings.License = LicenseType.Community;
 
             var document = QuestPDF.Fluent.Document.Create(container =>
@@ -33,22 +37,23 @@ public class OrderController : Controller
 
                     page.Content().Column(col =>
                     {
-                        col.Item().Text($"Sipariş No: {order.OrderId}");
-                        col.Item().Text($"Tarih: {order.OrderDate?.ToString("dd.MM.yyyy HH:mm")}");
-                        col.Item().Text($"Müşteri: {order.User?.FullName} ({order.User?.Email})");
+                        col.Item().Text($"Sipariş No: {order.OrderId}").FontSize(12);
+                        col.Item().Text($"Tarih: {order.OrderDate?.ToString("dd.MM.yyyy HH:mm") ?? "Bilinmiyor"}").FontSize(12);
+                        col.Item().Text($"Müşteri: {order.User?.FullName ?? "Bilinmiyor"} ({order.User?.Email ?? "Email yok"})").FontSize(12);
 
-                        col.Item().LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
+                        col.Item().PaddingVertical(10).LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
 
                         col.Item().Table(table =>
                         {
                             table.ColumnsDefinition(columns =>
                             {
-                                columns.RelativeColumn(); // Ürün ismi için dinamik genişlik
-                                columns.RelativeColumn(); // Adet için dinamik genişlik
-                                columns.RelativeColumn(); // Fiyat için dinamik genişlik
-                                columns.RelativeColumn(); // Toplam için dinamik genişlik
+                                columns.RelativeColumn(); // Ürün
+                                columns.ConstantColumn(50); // Adet
+                                columns.ConstantColumn(80); // Fiyat
+                                columns.ConstantColumn(90); // Toplam
                             });
 
+                            // Başlık
                             table.Header(header =>
                             {
                                 header.Cell().Text("Ürün").Bold();
@@ -57,34 +62,36 @@ public class OrderController : Controller
                                 header.Cell().Text("Toplam").Bold();
                             });
 
+                            // Satırlar
                             foreach (var item in order.OrderDetails)
                             {
-                                table.Cell().Text(item.Product?.Name ?? "Bilgi Yok");
+                                table.Cell().Text(item.Product?.Name ?? "Bilinmiyor");
                                 table.Cell().Text(item.Quantity.ToString());
-                                table.Cell().Text($"{item.UnitPrice} ₺");
-                                table.Cell().Text($"{item.UnitPrice * item.Quantity} ₺");
+                                table.Cell().Text($"{item.UnitPrice.ToString("C", new System.Globalization.CultureInfo("tr-TR"))}");
+                                table.Cell().Text($"{(item.UnitPrice * item.Quantity).ToString("C", new System.Globalization.CultureInfo("tr-TR"))}");
                             }
                         });
 
-                        col.Item().AlignRight().Text($"Toplam: {order.TotalAmount} ₺").Bold().FontSize(14);
+                        col.Item().AlignRight().PaddingTop(10)
+                            .Text($"Genel Toplam: {order.TotalAmount.ToString("C", new System.Globalization.CultureInfo("tr-TR"))}")
+                            .Bold().FontSize(14);
                     });
 
-                    page.Footer().AlignCenter().Text("Teşekkür ederiz!").Italic();
+                    page.Footer().AlignCenter().Text("Bizi tercih ettiğiniz için teşekkür ederiz!").Italic();
                 });
             });
 
             return document.GeneratePdf();
         }
+
     }
 
-    [HttpPost]
+    [HttpGet]
+    [Authorize]
     public IActionResult Checkout()
     {
-        var userId = HttpContext.Session.GetInt32("UserId");
-        if (userId == null)
-            return RedirectToAction("Login", "Account");
+        var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
 
-        // Sepeti çek
         var cart = _context.Carts
             .Include(c => c.CartItems)
             .ThenInclude(ci => ci.Product)
@@ -93,7 +100,52 @@ public class OrderController : Controller
         if (cart == null || !cart.CartItems.Any())
             return RedirectToAction("Index", "Cart");
 
-        // Sipariş oluştur
+        var addresses = _context.Addresses.Where(a => a.UserId == userId).ToList();
+
+        var model = new CheckoutViewModel
+        {
+            Cart = cart,
+            AddressList = addresses.Select(a => new SelectListItem
+            {
+                Value = a.AddressId.ToString(),
+                Text = $"{a.Title} - {a.FullName} ({a.City}/{a.District})"
+            }).ToList()
+        };
+
+        return View(model);
+    }
+
+    [HttpPost]
+    [Authorize]
+    [ValidateAntiForgeryToken]
+    public IActionResult Checkout(CheckoutViewModel model)
+    {
+        var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+
+        // HER ZAMAN CART YÜKLE
+        var cart = _context.Carts
+            .Include(c => c.CartItems)
+            .ThenInclude(ci => ci.Product)
+            .FirstOrDefault(c => c.UserId == userId);
+        model.Cart = cart;
+
+        if (!ModelState.IsValid)
+        {
+            var addresses = _context.Addresses.Where(a => a.UserId == userId).ToList();
+            model.AddressList = addresses.Select(a => new SelectListItem
+            {
+                Value = a.AddressId.ToString(),
+                Text = $"{a.Title} - {a.FullName} ({a.City}/{a.District})"
+            }).ToList();
+
+            return View(model);
+        }
+
+        if (cart == null || !cart.CartItems.Any())
+            return RedirectToAction("Index", "Cart");
+
+        var selectedAddress = _context.Addresses.FirstOrDefault(a => a.AddressId == model.SelectedAddressId);
+
         var order = new Order
         {
             UserId = userId,
@@ -105,20 +157,24 @@ public class OrderController : Controller
         _context.Orders.Add(order);
         _context.SaveChanges();
 
-        // Sipariş detayları
         foreach (var item in cart.CartItems)
         {
-            var detail = new OrderDetail
+            var product = _context.Products.FirstOrDefault(p => p.ProductId == item.ProductId);
+            if (product != null)
+            {
+                product.Stock -= item.Quantity;
+                if (product.Stock < 0) product.Stock = 0;
+            }
+
+            _context.OrderDetails.Add(new OrderDetail
             {
                 OrderId = order.OrderId,
                 ProductId = item.ProductId,
                 Quantity = item.Quantity,
                 UnitPrice = item.Product.Price
-            };
-            _context.OrderDetails.Add(detail);
+            });
         }
 
-        // Sepeti temizle
         _context.CartItems.RemoveRange(cart.CartItems);
         _context.SaveChanges();
 
@@ -126,10 +182,12 @@ public class OrderController : Controller
         return RedirectToAction("MyOrders");
     }
 
+
     public IActionResult MyOrders()
     {
-        var userId = HttpContext.Session.GetInt32("UserId");
-        if (userId == null)
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
             return RedirectToAction("Login", "Account");
 
         var orders = _context.Orders
@@ -141,11 +199,63 @@ public class OrderController : Controller
 
         return View(orders);
     }
+    [HttpPost]
+    [Authorize]
+    public IActionResult CancelOrder(int id)
+    {
+        var order = _context.Orders
+            .Include(o => o.OrderDetails)
+            .ThenInclude(od => od.Product)
+            .FirstOrDefault(o => o.OrderId == id && o.Status == "Hazırlanıyor");
+
+        if (order == null)
+        {
+            TempData["OrderMessage"] = "İptal edilemedi.";
+            return RedirectToAction("MyOrders");
+        }
+
+        //  Stokları geri artır
+        foreach (var item in order.OrderDetails)
+        {
+            if (item.Product != null)
+            {
+                item.Product.Stock += item.Quantity;
+            }
+        }
+
+        order.Status = "İptal Edildi";
+        _context.SaveChanges();
+
+        TempData["OrderMessage"] = "Sipariş başarıyla iptal edildi ve stok güncellendi.";
+        return RedirectToAction("MyOrders");
+    }
+
+
+    [HttpPost]
+    [Authorize]
+    [ValidateAntiForgeryToken]
+    public IActionResult ReturnOrder(int id)
+    {
+        var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+        var order = _context.Orders.FirstOrDefault(o => o.OrderId == id && o.UserId == userId);
+
+        if (order == null || order.Status != "Teslim Edildi")
+        {
+            return NotFound();
+        }
+
+        order.Status = "İade Edildi";
+        _context.SaveChanges();
+
+        TempData["OrderSuccess"] = "Siparişiniz iade edildi.";
+        return RedirectToAction("MyOrders");
+    }
+
 
     [HttpGet]
     public IActionResult DownloadInvoice(int id)
     {
-        var userId = HttpContext.Session.GetInt32("UserId");
+        var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
         if (userId == null)
             return RedirectToAction("Login", "Account");
 
@@ -162,5 +272,6 @@ public class OrderController : Controller
 
         return File(pdfBytes, "application/pdf", $"Fatura-{order.OrderId}.pdf");
     }
+
 
 }

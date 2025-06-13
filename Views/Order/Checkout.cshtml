@@ -1,0 +1,32 @@
+﻿@model E_ticaret_Sitesi.ViewModels.CheckoutViewModel
+
+<h2>Siparişi Tamamla</h2>
+
+<form asp-action="Checkout" method="post">
+    @Html.AntiForgeryToken()
+    <div class="mb-3">
+        <label for="SelectedAddressId" class="form-label">Adres Seçimi</label>
+        <select asp-for="SelectedAddressId" class="form-select" asp-items="Model.AddressList">
+            <option value="">-- Adres Seçin --</option>
+        </select>
+        <span asp-validation-for="SelectedAddressId" class="text-danger"></span>
+    </div>
+
+    <h4>Sepetiniz</h4>
+    <table class="table">
+        <thead><tr><th>Ürün</th><th>Adet</th><th>Fiyat</th><th>Toplam</th></tr></thead>
+        <tbody>
+            @foreach (var item in Model.Cart.CartItems)
+            {
+                <tr>
+                    <td>@item.Product.Name</td>
+                    <td>@item.Quantity</td>
+                    <td>@item.Product.Price ₺</td>
+                    <td>@(item.Quantity * item.Product.Price) ₺</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <button type="submit" class="btn btn-success">Siparişi Tamamla</button>
+</form>

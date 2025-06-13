@@ -1,89 +1,148 @@
 ﻿@using Microsoft.AspNetCore.Http
+@using System.Security.Claims
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="tr">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Online Shopping Website</title>
+    <title>@ViewData["Title"] - Life Is Shopping</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/E_ticaret_Sitesi.styles.css" asp-append-version="true" />
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .navbar {
+            background: linear-gradient(to right, #1f4037, #99f2c8);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .navbar-brand, .nav-link {
+            color: #fff !important;
+            font-weight: 500;
+        }
+
+            .nav-link:hover {
+                color: #ffe484 !important;
+                transform: scale(1.05);
+                transition: 0.2s;
+            }
+
+        .dropdown-menu {
+            background-color: #ffffff;
+        }
+
+        .dropdown-item:hover {
+            background-color: #d1e7dd;
+        }
+
+        footer {
+            background-color: #212529;
+            color: #adb5bd;
+            padding: 20px 0;
+        }
+
+            footer a {
+                color: #90ee90;
+                text-decoration: none;
+            }
+
+                footer a:hover {
+                    color: #fff;
+                    text-decoration: underline;
+                }
+    </style>
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-light bg-light shadow-sm mb-3">
+        <nav class="navbar navbar-expand-sm shadow-sm mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-controller="Home" asp-action="Index">E_ticaret_Sitesi</a>
+                <a class="navbar-brand" asp-controller="Home" asp-action="Index"><i class="bi bi-shop-window"></i> Life Is Shopping</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <!-- Sol Menü -->
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Home" asp-action="Index">Anasayfa</a>
+                            <a class="nav-link" asp-controller="Home" asp-action="Index">Anasayfa</a>
                         </li>
 
-                        <!-- Dropdown Kategoriler -->
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle text-dark" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Kategoriler
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <li><a class="dropdown-item" href="/Products/Category/1">Elektronik</a></li>
-                                <li><a class="dropdown-item" href="/Products/Category/2">Moda</a></li>
-                                <li><a class="dropdown-item" href="/Products/Category/3">Ev & Yaşam</a></li>
-                                <li><a class="dropdown-item" href="/Products/Category/4">Gıda</a></li>
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Kategoriler</a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="/Products/Category/1">📱 Elektronik</a></li>
+                                <li><a class="dropdown-item" href="/Products/Category/2">👗 Moda</a></li>
+                                <li><a class="dropdown-item" href="/Products/Category/3">🏠 Ev & Yaşam</a></li>
+                                <li><a class="dropdown-item" href="/Products/Category/4">🥫 Gıda</a></li>
                             </ul>
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Products" asp-action="Index">Ürünler</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Cart" asp-action="Index">Sepet</a>
+                            <a class="nav-link" asp-controller="Products" asp-action="Index">Ürünler</a>
                         </li>
 
-                        @* 🔐 Giriş yapan kullanıcıya özel menüler *@
-                        @if (Context.Session.GetInt32("UserId") != null)
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Cart" asp-action="Index">Sepet</a>
+                        </li>
+
+                        @if (User.Identity?.IsAuthenticated == true)
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Order" asp-action="MyOrders">Siparişlerim</a>
+                                <a class="nav-link" asp-controller="Address" asp-action="Index">Adreslerim</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="AdminOrders" asp-action="Index">Sipariş Yönetimi</a>
+                                <a class="nav-link" asp-controller="Order" asp-action="MyOrders">Siparişlerim</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="AdminProducts" asp-action="Index">Admin Paneli</a>
+                                <a class="nav-link text-dark" asp-controller="Wishlist" asp-action="Index">Favoriler</a>
                             </li>
+
+
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Admin" asp-action="Dashboard">Admin Paneli</a>
+                                </li>
+                            }
                         }
                     </ul>
 
-                    <!-- Sağ Menü: Giriş / Üye Ol veya Hoş Geldin -->
                     <ul class="navbar-nav">
-                        <!-- 🔍 Arama Kutusu -->
                         <form class="d-flex me-3" asp-controller="Products" asp-action="Index" method="get">
-                            <input class="form-control me-2" type="search" name="search" placeholder="Ürün ara..." aria-label="Search">
-                            <button class="btn btn-outline-success" type="submit">Ara</button>
+                            <input class="form-control me-2" type="search" name="search" placeholder="Ürün ara..." />
+                            <button class="btn btn-outline-light" type="submit"><i class="bi bi-search"></i></button>
                         </form>
-                        @if (Context.Session.GetInt32("UserId") != null)
+
+                        @if (User.Identity.IsAuthenticated)
                         {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark">Hoş geldin, @Context.Session.GetString("UserName")</a>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Hesap Ayarları">
+                                    👋 @User.Identity.Name
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="nav-link text-dark" asp-controller="Wishlist" asp-action="Index">Favoriler</a></li>
+                                </ul>
                             </li>
+
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Account" asp-action="Logout">Çıkış Yap</a>
+                                <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-link nav-link text-white">Çıkış Yap</button>
+                                </form>
                             </li>
                         }
                         else
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">Giriş Yap</a>
+                                <a class="nav-link" asp-controller="Account" asp-action="Login">Giriş Yap</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Account" asp-action="Register">Üye Ol</a>
+                                <a class="nav-link" asp-controller="Account" asp-action="Register">Üye Ol</a>
                             </li>
                         }
                     </ul>
@@ -98,7 +157,7 @@
         </main>
     </div>
 
-    <footer class="border-top footer text-muted mt-4">
+    <footer class="text-center">
         <div class="container">
             &copy; 2025 - E_ticaret_Sitesi - <a asp-controller="Home" asp-action="Privacy">Gizlilik</a>
         </div>

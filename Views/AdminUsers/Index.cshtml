@@ -1,0 +1,43 @@
+﻿@model List<E_ticaret_Sitesi.Models.User>
+
+@{
+    ViewData["Title"] = "Kullanıcı Yönetimi";
+}
+
+<h2 class="mb-4">👥 Kullanıcı Yönetimi</h2>
+
+<table class="table table-bordered table-hover">
+    <thead>
+        <tr>
+            <th>Ad Soyad</th>
+            <th>E-posta</th>
+            <th>Rol</th>
+            <th>İşlemler</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model)
+        {
+            <tr>
+                <td>@user.FullName</td>
+                <td>@user.Email</td>
+                <td>@user.Role</td>
+                <td>
+                    <form asp-action="UpdateRole" asp-controller="AdminUsers" method="post" class="d-inline">
+                        <input type="hidden" name="id" value="@user.UserId" />
+                        <select name="newRole" class="form-select form-select-sm d-inline w-auto">
+                            <option value="User" selected="@("User" == user.Role)">User</option>
+                            <option value="Admin" selected="@("Admin" == user.Role)">Admin</option>
+                        </select>
+                        <button type="submit" class="btn btn-sm btn-primary">Güncelle</button>
+                    </form>
+
+                    <form asp-action="Delete" asp-controller="AdminUsers" method="post" class="d-inline ms-2">
+                        <input type="hidden" name="id" value="@user.UserId" />
+                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Silmek istediğine emin misin?')">Sil</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

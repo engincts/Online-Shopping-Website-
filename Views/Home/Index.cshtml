@@ -3,14 +3,14 @@
     ViewData["Title"] = "Home Page";
 }
 
-<!-- Hero Section (Ana Banner) -->
+<!-- Hero Section -->
 <div class="hero-section bg-dark text-white text-center py-5">
     <h1 class="display-4">Hoşgeldiniz! Şimdi Al, Hemen Kullan!</h1>
     <p class="lead">En yeni ürünlerimizi keşfedin, fırsatları kaçırmayın.</p>
     <a href="/Products" class="btn btn-primary btn-lg">Ürünleri Gör</a>
 </div>
 
-<!-- Kategoriler Bölümü -->
+<!-- Kategoriler -->
 <div class="categories-section text-center my-5">
     <h2>Ürün Kategorileri</h2>
     <div class="row">
@@ -23,26 +23,64 @@
     </div>
 </div>
 
-<!-- Öne Çıkan Ürünler -->
+<!-- Öne Çıkan Ürünler Carousel -->
 <div class="featured-products text-center my-5">
     <h2>Öne Çıkan Ürünler</h2>
-    <div class="row">
-        @foreach (var product in Model)
-        {
-            <div class="col-md-6 col-lg-4 mb-4">
-                <div class="card shadow-lg">
-                    <!-- Resmin doğru şekilde yüklenmesi için src kullanımı -->
-                    <img src="@Url.Content(product.ImageUrl)" class="card-img-top" alt="@product.Name" style="height: 250px; object-fit: cover;">
-                    <p class="text-muted small">Yol: @product.ImageUrl</p>
-
-                    <div class="card-body">
-                        <h5 class="card-title">@product.Name</h5>
-                        <p class="card-text">@product.Price ₺</p>
-                        <a href="/Products/Details/@product.ProductId" class="btn btn-outline-primary">Detay</a>
-                    </div>
+    <div id="featuredCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="4000">
+        <div class="carousel-inner">
+            <div class="carousel-item active">
+                <div class="row">
+                    @foreach (var product in Model.Take(3))
+                    {
+                        <div class="col-md-4 mb-4">
+                            <div class="card shadow-lg">
+                                <img src="@Url.Content(product.ImageUrl)" class="card-img-top" alt="@product.Name" style="height: 250px; object-fit: cover;">
+                                <div class="card-body">
+                                    <h5 class="card-title">@product.Name</h5>
+                                    <p class="card-text">@product.Price ₺</p>
+                                    <a href="/Products/Details/@product.ProductId" class="btn btn-outline-primary">Detay</a>
+                                    <form asp-controller="Wishlist" asp-action="Add" method="post" class="mt-2">
+                                        <input type="hidden" name="productId" value="@product.ProductId" />
+                                        <button class="btn btn-outline-danger btn-sm" type="submit">
+                                            <i class="fas fa-heart"></i> Favorilere Ekle
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    }
                 </div>
             </div>
-        }
+            <div class="carousel-item">
+                <div class="row">
+                    @foreach (var product in Model.Skip(3).Take(3))
+                    {
+                        <div class="col-md-4 mb-4">
+                            <div class="card shadow-lg">
+                                <img src="@Url.Content(product.ImageUrl)" class="card-img-top" alt="@product.Name" style="height: 250px; object-fit: cover;">
+                                <div class="card-body">
+                                    <h5 class="card-title">@product.Name</h5>
+                                    <p class="card-text">@product.Price ₺</p>
+                                    <a href="/Products/Details/@product.ProductId" class="btn btn-outline-primary">Detay</a>
+                                    <form asp-controller="Wishlist" asp-action="Add" method="post" class="mt-2">
+                                        <input type="hidden" name="productId" value="@product.ProductId" />
+                                        <button class="btn btn-outline-danger btn-sm" type="submit">
+                                            <i class="fas fa-heart"></i> Favorilere Ekle
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#featuredCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon"></span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#featuredCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon"></span>
+        </button>
     </div>
 </div>
 
@@ -51,7 +89,7 @@
     <a href="/Products" class="btn btn-outline-primary">Tüm Ürünleri Gör</a>
 </div>
 
-<!-- İkonlar ile Bilgi Bölümü -->
+<!-- İkon Bilgilendirme -->
 <div class="info-icons text-center my-5">
     <h3>Hızlı ve Kolay Alışveriş</h3>
     <div class="row">
@@ -65,18 +103,4 @@
         </div>
         <div class="col-md-4 mb-3">
             <i class="fas fa-retweet fa-4x"></i>
-            <p>Kolay İade</p>
-        </div>
-    </div>
-</div>
-
-<!-- Footer (Altbilgi) -->
-<footer class="footer bg-dark text-white text-center py-3">
-    <div class="container">
-        &copy; 2025 - E_ticaret_Sitesi - <a href="/Home/Privacy" class="text-white">Gizlilik</a>
-    </div>
-</footer>
-
-@section Scripts {
-    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
-}
+            <p>Kolay İade</

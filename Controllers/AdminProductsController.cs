@@ -5,9 +5,11 @@ using Microsoft.AspNetCore.Http;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 namespace E_ticaret_Sitesi.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class AdminProductsController : Controller
     {
         private readonly OnlineShoppingContext _context;

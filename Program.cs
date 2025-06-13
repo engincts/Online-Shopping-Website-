@@ -1,32 +1,44 @@
-using E_ticaret_Sitesi.Models; // OnlineShoppingContext sýnýfý buradan
-using Microsoft.EntityFrameworkCore; // Veritabaný iþlemleri için
+using E_ticaret_Sitesi.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Veritabanýný baðla
+// Veritabaný baðlantýsý
 builder.Services.AddDbContext<OnlineShoppingContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// MVC ve Session'ý ekle
+// MVC, Session, Authentication
 builder.Services.AddControllersWithViews();
 builder.Services.AddSession();
 
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Account/Login"; // Giriþ yapýlmamýþsa yönlendirilecek sayfa
+        options.AccessDeniedPath = "/Account/AccessDenied";
+        options.ExpireTimeSpan = TimeSpan.FromDays(7); // Cookie süresi
+        options.SlidingExpiration = true;
+    });
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Middleware pipeline
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
 
-app.UseSession(); // Session'ý aktif et
-
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-app.UseAuthorization();
+
+app.UseSession();             
+app.UseAuthentication();      
+app.UseAuthorization();       
 
 app.MapControllerRoute(
     name: "default",

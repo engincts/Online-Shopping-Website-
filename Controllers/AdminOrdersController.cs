@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using E_ticaret_Sitesi.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace E_ticaret_Sitesi.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class AdminOrdersController : Controller
     {
         private readonly OnlineShoppingContext _context;

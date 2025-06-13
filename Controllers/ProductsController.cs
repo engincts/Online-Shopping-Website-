@@ -2,9 +2,11 @@
 using Microsoft.EntityFrameworkCore;
 using E_ticaret_Sitesi.Models;
 using System.Linq;
+using Microsoft.AspNetCore.Authorization;
 
 namespace E_ticaret_Sitesi.Controllers
 {
+
     public class ProductsController : Controller
     {
         private readonly OnlineShoppingContext _context;

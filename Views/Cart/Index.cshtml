@@ -15,6 +15,7 @@ else
                 <th>Fiyat</th>
                 <th>Adet</th>
                 <th>Toplam</th>
+                <th>İşlem</th>
             </tr>
         </thead>
         <tbody>
@@ -25,6 +26,20 @@ else
                     <td>@item.Product.Price ₺</td>
                     <td>@item.Quantity</td>
                     <td>@(item.Quantity * item.Product.Price) ₺</td>
+                    <td>
+                    <td>
+                        <form method="post" asp-action="RemoveItem" asp-controller="Cart" class="d-inline">
+                            <input type="hidden" name="cartItemId" value="@item.CartItemId" />
+                            <button type="submit" class="btn btn-sm btn-danger">Sil</button>
+                        </form>
+
+                        <form method="post" asp-action="MoveToWishlist" asp-controller="Wishlist" class="d-inline ms-2">
+                            <input type="hidden" name="productId" value="@item.ProductId" />
+                            <button type="submit" class="btn btn-sm btn-warning">Favorilere Taşı</button>
+                        </form>
+                    </td>
+
+                    </td>
                 </tr>
             }
         </tbody>
@@ -36,7 +51,7 @@ else
         </strong>
     </h4>
 
-    <form asp-controller="Order" asp-action="Checkout" method="post">
+    <form asp-controller="Order" asp-action="Checkout">
         <button type="submit" class="btn btn-success float-end">Siparişi Tamamla</button>
     </form>
 }

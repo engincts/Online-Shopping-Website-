@@ -1,22 +1,69 @@
-html {
-  font-size: 14px;
-}
-
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
-}
-
+/* === Temel Stil Ayarlarý === */
 body {
-  margin-bottom: 60px;
+    background-color: #f8f9fa;
+    font-family: 'Segoe UI', sans-serif;
+    color: #212529;
+    margin: 0;
+    padding: 0;
+}
+
+/* Kartlar için gölge ve köþe yumuþatma */
+.card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+}
+
+/* Butonlar */
+.btn-primary {
+    background: linear-gradient(to right, #1f4037, #99f2c8);
+    border: none;
+}
+
+    .btn-primary:hover {
+        background: linear-gradient(to right, #99f2c8, #1f4037);
+        color: white;
+    }
+
+.btn-outline-primary {
+    border-color: #1f4037;
+    color: #1f4037;
+}
+
+    .btn-outline-primary:hover {
+        background-color: #1f4037;
+        color: white;
+    }
+
+/* Baþlýklar */
+h1, h2, h3, h4 {
+    color: #1f4037;
+    font-weight: 600;
+}
+
+/* Formlar */
+.form-label {
+    font-weight: 500;
+    color: #495057;
+}
+
+.form-control, .form-select {
+    border-radius: 8px;
+    border: 1px solid #ced4da;
+}
+
+/* Tablolar */
+.table {
+    background-color: white;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+    .table th {
+        background-color: #d1e7dd;
+        color: #212529;
+    }
+
+.alert-info, .alert-success {
+    border-radius: 8px;
 }

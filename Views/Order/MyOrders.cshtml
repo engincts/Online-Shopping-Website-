@@ -6,6 +6,10 @@
 {
     <div class="alert alert-success">@TempData["OrderSuccess"]</div>
 }
+@if (TempData["OrderMessage"] != null)
+{
+    <div class="alert alert-info">@TempData["OrderMessage"]</div>
+}
 
 @if (!Model.Any())
 {
@@ -21,6 +25,7 @@ else
                 Durum: <strong>@order.Status</strong><br />
                 Toplam Tutar: <strong>@order.TotalAmount ₺</strong>
             </div>
+
             <ul class="list-group list-group-flush">
                 @foreach (var item in order.OrderDetails)
                 {
@@ -31,7 +36,30 @@ else
                 }
             </ul>
 
-            <div class="card-footer text-end">
+            <div class="card-footer d-flex justify-content-between align-items-center">
+                <div>
+                    @if (order.Status == "Hazırlanıyor")
+                    {
+                        <form asp-action="CancelOrder" asp-controller="Order" method="post" class="d-inline">
+                            <input type="hidden" name="id" value="@order.OrderId" />
+                            <button type="submit" class="btn btn-sm btn-danger"
+                                    onclick="return confirm('Siparişi iptal etmek istediğinize emin misiniz?');">
+                                Siparişi İptal Et
+                            </button>
+                        </form>
+                    }
+                    else if (order.Status == "Teslim Edildi")
+                    {
+                        <form asp-action="ReturnOrder" asp-controller="Order" method="post" class="d-inline">
+                            <input type="hidden" name="id" value="@order.OrderId" />
+                            <button type="submit" class="btn btn-sm btn-warning"
+                                    onclick="return confirm('Ürünü iade etmek istediğinize emin misiniz?');">
+                                İade Et
+                            </button>
+                        </form>
+                    }
+                </div>
+
                 <a asp-controller="Order" asp-action="DownloadInvoice" asp-route-id="@order.OrderId"
                    class="btn btn-sm btn-outline-primary" target="_blank">
                     Faturayı İndir (PDF)

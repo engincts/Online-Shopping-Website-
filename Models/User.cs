@@ -17,7 +17,13 @@ public partial class User
 
     public DateTime? CreatedAt { get; set; }
 
+    public string Role { get; set; } = null!;
+
+    public virtual ICollection<Address> Addresses { get; set; } = new List<Address>();
+
     public virtual ICollection<Cart> Carts { get; set; } = new List<Cart>();
 
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
+
+    public virtual ICollection<Wishlist> Wishlists { get; set; } = new List<Wishlist>();
 }

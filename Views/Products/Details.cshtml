@@ -15,5 +15,14 @@
             <input type="hidden" name="productId" value="@Model.ProductId" />
             <button type="submit" class="btn btn-primary">Sepete Ekle</button>
         </form>
+        <form asp-controller="Wishlist" asp-action="Add" method="post" class="mt-2">
+            <input type="hidden" name="productId" value="@Model.ProductId" />
+            <button class="btn btn-outline-danger btn-sm" type="submit">
+                <i class="fas fa-heart"></i> Favorilere Ekle
+            </button>
+        </form>
     </div>
 </div>
+
+
+

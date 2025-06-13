@@ -1,0 +1,89 @@
+﻿@model E_ticaret_Sitesi.ViewModels.AdminDashboardViewModel
+@using System.Text.Json
+
+@{
+    ViewData["Title"] = "Admin Paneli";
+}
+
+<div class="container py-4">
+    <h2 class="mb-4 text-primary">👑 Admin Paneli</h2>
+
+    <div class="row g-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-success shadow">
+                <div class="card-body">
+                    <h5 class="card-title">Toplam Kullanıcı</h5>
+                    <p class="display-6">@Model.TotalUsers</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-info shadow">
+                <div class="card-body">
+                    <h5 class="card-title">Toplam Ürün</h5>
+                    <p class="display-6">@Model.TotalProducts</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning shadow">
+                <div class="card-body">
+                    <h5 class="card-title">Toplam Sipariş</h5>
+                    <p class="display-6">@Model.TotalOrders</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-danger shadow">
+                <div class="card-body">
+                    <h5 class="card-title">Toplam Kazanç</h5>
+                    <p class="display-6">@Model.TotalRevenue ₺</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <hr class="my-4" />
+
+    <div class="row">
+        <div class="col">
+            <a class="btn btn-outline-primary me-2" asp-controller="AdminProducts" asp-action="Index">📦 Ürün Yönetimi</a>
+            <a class="btn btn-outline-secondary me-2" asp-controller="AdminOrders" asp-action="Index">📄 Sipariş Yönetimi</a>
+            <a class="btn btn-outline-dark" asp-controller="AdminUsers" asp-action="Index">👥 Kullanıcı Yönetimi</a>
+        </div>
+    </div>
+
+    <hr class="my-4" />
+
+    <h4 class="text-primary">📊 Aylık Kazanç Grafiği</h4>
+    <canvas id="revenueChart" height="100"></canvas>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('revenueChart').getContext('2d');
+        const revenueChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: @Html.Raw(JsonSerializer.Serialize(Model.MonthlyRevenue.Select(m => m.Month))),
+                datasets: [{
+                    label: 'Aylık Kazanç (₺)',
+                    data: @Html.Raw(JsonSerializer.Serialize(Model.MonthlyRevenue.Select(m => m.Revenue))),
+                    backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: value => value + " ₺"
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+}

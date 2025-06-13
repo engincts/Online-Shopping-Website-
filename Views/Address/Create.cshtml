@@ -1,0 +1,38 @@
+﻿@model E_ticaret_Sitesi.Models.Address
+
+<h2>Adres Ekle</h2>
+
+<form asp-action="Create" method="post">
+    @Html.AntiForgeryToken()
+    <div class="mb-3">
+        <label asp-for="Title" class="form-label"></label>
+        <input asp-for="Title" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label asp-for="FullName" class="form-label"></label>
+        <input asp-for="FullName" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label asp-for="Phone" class="form-label"></label>
+        <input asp-for="Phone" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label asp-for="City" class="form-label"></label>
+        <input asp-for="City" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label asp-for="District" class="form-label"></label>
+        <input asp-for="District" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label asp-for="FullAddress" class="form-label"></label>
+        <textarea asp-for="FullAddress" class="form-control"></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Kaydet</button>
+    <span asp-validation-for="Title" class="text-danger"></span>
+
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
